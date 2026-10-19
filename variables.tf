@@ -162,6 +162,110 @@ variable "db_engine_version" {
 variable "db_instance_class" {
   description = "RDS instance class."
   type        = string
+
+==========================================
+proxy
+========================================
+variable "proxy_enabled" {
+  description = "Whether to create the RDS Proxy."
+  type        = bool
+  default     = true
+}
+
+variable "proxy_require_tls" {
+  description = "Require TLS for client-to-proxy connections."
+  type        = bool
+  default     = true
+}
+
+variable "proxy_iam_auth" {
+  description = "RDS Proxy IAM authentication mode."
+  type        = string
+  default     = "DISABLED"
+
+  validation {
+    condition = contains(
+      ["DISABLED", "REQUIRED", "ENABLED"],
+      var.proxy_iam_auth
+    )
+    error_message = "Use DISABLED, REQUIRED, or ENABLED."
+  }
+}
+
+variable "proxy_idle_client_timeout" {
+  description = "Idle client connection timeout in seconds."
+  type        = number
+  default     = 1800
+}
+
+variable "proxy_connection_borrow_timeout" {
+  description = "Maximum wait for a database connection in seconds."
+  type        = number
+  default     = 120
+}
+
+variable "proxy_max_connections_percent" {
+  description = "Maximum percentage of database connections allocated to the proxy."
+  type        = number
+  default     = 80
+
+  validation {
+    condition = (
+      var.proxy_max_connections_percent >= 1 &&
+      var.proxy_max_connections_percent <= 100
+    )
+    error_message = "Connection percentage must be between 1 and 100."
+  }
+}
+
+variable "proxy_max_idle_connections_percent" {
+  description = "Maximum idle connection percentage for the proxy pool."
+  type        = number
+  default     = 40
+
+  validation {
+    condition = (
+      var.proxy_max_idle_connections_percent >= 0 &&
+      var.proxy_max_idle_connections_percent <= 100
+    )
+    error_message = "Idle connection percentage must be between 0 and 100."
+  }
+}
+
+variable "proxy_debug_logging" {
+  description = "Enable detailed RDS Proxy logs for troubleshooting."
+  type        = bool
+  default     = false
+}
+
+variable "proxy_borrow_latency_alarm_enabled" {
+  description = "Enable the proxy connection-borrow-latency alarm."
+  type        = bool
+  default     = true
+}
+
+variable "proxy_borrow_latency_threshold_ms" {
+  description = "Connection-borrow-latency alarm threshold in milliseconds."
+  type        = number
+  default     = 1000
+}
+
+variable "proxy_borrow_latency_period" {
+  description = "Alarm evaluation period in seconds."
+  type        = number
+  default     = 300
+}
+
+variable "proxy_borrow_latency_evaluations" {
+  description = "Number of evaluation periods for the alarm."
+  type        = number
+  default     = 3
+}
+3. Pass the settings 
+
+
+
+
   default     = "db.t4g.medium"
 }
 
