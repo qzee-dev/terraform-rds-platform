@@ -1,0 +1,58 @@
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyRunInstancesWithoutOwner",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:RunInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/owner": "true"
+        }
+      }
+    },
+    {
+      "Sid": "DenyRunInstancesWithoutManagedBy",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:RunInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/managedby": "true"
+        }
+      }
+    },
+    {
+      "Sid": "DenyRunInstancesWithoutProjectName",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:RunInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/projectname": "true"
+        }
+      }
+    },
+    {
+      "Sid": "DenyRunInstancesWithoutCostCenter",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:RunInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/costcenter": "true"
+        }
+      }
+    }
+  ]
+}
