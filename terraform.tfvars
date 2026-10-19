@@ -70,11 +70,10 @@ proxy_enabled = true
 proxy_require_tls = true
 proxy_iam_auth    = "DISABLED"
 
-# Connection management
 proxy_idle_client_timeout          = 1800
-proxy_connection_borrow_timeout    = 120
-proxy_max_connections_percent      = 80
-proxy_max_idle_connections_percent = 40
+proxy_connection_borrow_timeout    = 30
+proxy_max_connections_percent      = 90
+proxy_max_idle_connections_percent = 50
 
 # Logging
 proxy_debug_logging = false
