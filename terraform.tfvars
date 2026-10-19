@@ -54,3 +54,36 @@ apply_immediately   = false
 
 backup_window      = "01:00-02:00"
 maintenance_window = "sun:03:00-sun:04:00"
+
+
+
+
+
+# ============================================================
+# RDS PROXY — PRODUCTION CONFIGURATION
+# ============================================================
+
+# Proxy naming
+proxy_enabled = true
+
+# Authentication
+proxy_require_tls = true
+proxy_iam_auth    = "DISABLED"
+
+# Connection management
+proxy_idle_client_timeout          = 1800
+proxy_connection_borrow_timeout    = 120
+proxy_max_connections_percent      = 80
+proxy_max_idle_connections_percent = 40
+
+# Logging
+proxy_debug_logging = false
+
+# CloudWatch connection-borrow-latency alarm
+proxy_borrow_latency_alarm_enabled = true
+proxy_borrow_latency_threshold_ms  = 1000
+proxy_borrow_latency_period        = 300
+proxy_borrow_latency_evaluations   = 3
+
+
+
