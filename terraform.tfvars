@@ -84,5 +84,25 @@ proxy_borrow_latency_threshold_ms  = 1000
 proxy_borrow_latency_period        = 300
 proxy_borrow_latency_evaluations   = 3
 
+======================================================
+pgbouncer - Production Configuration
+=====================================================
+database_proxy_mode = "pgbouncer"
+
+pgbouncer_instance_type = "t3.small"
+pgbouncer_min_size = 2
+pgbouncer_desired_capacity = 2
+pgbouncer_max_size = 4
+
+pgbouncer_port = 6432
+pgbouncer_pool_mode = "transaction"
+pgbouncer_default_pool_size = 50
+pgbouncer_max_client_conn = 5000
+pgbouncer_max_db_connections = 200
+
+pgbouncer_server_idle_timeout = 60
+pgbouncer_query_wait_timeout = 120
+pgbouncer_health_check_interval = 30
+pgbouncer_health_check_threshold = 3
 
 
