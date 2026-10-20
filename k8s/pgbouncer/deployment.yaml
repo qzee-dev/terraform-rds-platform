@@ -1,1 +1,104 @@
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgbouncer
+  namespace: platform
+  labels:
+    app: pgbouncer
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: pgbouncer
+  template:
+    metadata:
+      labels:
+        app: pgbouncer
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9127"
+    spec:
+      serviceAccountName: pgbouncer
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: pgbouncer
+          image: edoburu/pgbouncer:1.22.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6432
+              name: pgbouncer
+            - containerPort: 9127
+              name: metrics
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: PGBOUNCER_AUTH_TYPE
+              value: "scram-sha-256"
+            - name: PGBOUNCER_PORT
+              value: "6432"
+            - name: PGBOUNCER_POOL_MODE
+              value: "transaction"
+            - name: PGBOUNCER_DEFAULT_POOL_SIZE
+              value: "50"
+            - name: PGBOUNCER_MAX_CLIENT_CONN
+              value: "5000"
+            - name: PGBOUNCER_MAX_DB_CONNECTIONS
+              value: "200"
+            - name: PGBOUNCER_SERVER_IDLE_TIMEOUT
+              value: "60"
+            - name: PGBOUNCER_QUERY_WAIT_TIMEOUT
+              value: "120"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/pgbouncer/pgbouncer.ini
+              subPath: pgbouncer.ini
+              readOnly: true
+            - name: userlist
+              mountPath: /etc/pgbouncer/userlist.txt
+              subPath: userlist.txt
+              readOnly: true
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            tcpSocket:
+              port: 6432
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 6432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 2
+      volumes:
+        - name: config
+          configMap:
+            name: pgbouncer-config
+        - name: userlist
+          secret:
+            secretName: pgbouncer-userlist
