@@ -41,40 +41,6 @@ module "database" {
 
 module "rds_proxy" {
   source = "./modules/rds-proxy"
-  count  = var.proxy_enabled ? 1 : 0
-
-  name_prefix    = local.name_prefix
-  db_instance_id = module.database.primary_id
-  db_secret_arn  = module.database.secret_arn
-
-  db_secret_kms_key_arn = module.database.kms_key_arn
-
-  subnet_ids = module.network.app_subnet_ids
-
-  security_group_ids = [
-    module.network.proxy_security_group_id
-  ]
-
-  require_tls                       = var.proxy_require_tls
-  iam_auth                          = var.proxy_iam_auth
-  idle_client_timeout               = var.proxy_idle_client_timeout
-  connection_borrow_timeout         = var.proxy_connection_borrow_timeout
-  max_connections_percent           = var.proxy_max_connections_percent
-  max_idle_connections_percent      = var.proxy_max_idle_connections_percent
-  debug_logging                     = var.proxy_debug_logging
-
-  borrow_latency_alarm_enabled      = var.proxy_borrow_latency_alarm_enabled
-  borrow_latency_threshold_ms       = var.proxy_borrow_latency_threshold_ms
-  borrow_latency_period             = var.proxy_borrow_latency_period
-  borrow_latency_evaluations        = var.proxy_borrow_latency_evaluations
-
-  tags = local.common_tags
-}
-
-
-
-module "rds_proxy" {
-  source = "./modules/rds-proxy"
   count  = var.database_proxy_mode == "rds-proxy" ? 1 : 0
 
   name_prefix    = local.name_prefix
