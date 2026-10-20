@@ -71,26 +71,79 @@ module "rds_proxy" {
   tags = local.common_tags
 }
 
-======================================================
-pgbouncer
-=====================================================
-database_proxy_mode = "pgbouncer"
 
-pgbouncer_instance_type = "t3.small"
-pgbouncer_min_size = 2
-pgbouncer_desired_capacity = 2
-pgbouncer_max_size = 4
 
-pgbouncer_port = 6432
-pgbouncer_pool_mode = "transaction"
-pgbouncer_default_pool_size = 50
-pgbouncer_max_client_conn = 5000
-pgbouncer_max_db_connections = 200
+module "rds_proxy" {
+  source = "./modules/rds-proxy"
+  count  = var.database_proxy_mode == "rds-proxy" ? 1 : 0
 
-pgbouncer_server_idle_timeout = 60
-pgbouncer_query_wait_timeout = 120
-pgbouncer_health_check_interval = 30
-pgbouncer_health_check_threshold = 3
+  name_prefix    = local.name_prefix
+  db_instance_id = module.database.primary_id
+  db_secret_arn  = module.database.secret_arn
+
+  db_secret_kms_key_arn = module.database.kms_key_arn
+
+  subnet_ids = module.network.app_subnet_ids
+
+  security_group_ids = [
+    module.network.proxy_security_group_id
+  ]
+
+  require_tls                       = var.proxy_require_tls
+  iam_auth                          = var.proxy_iam_auth
+  idle_client_timeout               = var.proxy_idle_client_timeout
+  connection_borrow_timeout         = var.proxy_connection_borrow_timeout
+  max_connections_percent           = var.proxy_max_connections_percent
+  max_idle_connections_percent      = var.proxy_max_idle_connections_percent
+  debug_logging                     = var.proxy_debug_logging
+
+  borrow_latency_alarm_enabled      = var.proxy_borrow_latency_alarm_enabled
+  borrow_latency_threshold_ms       = var.proxy_borrow_latency_threshold_ms
+  borrow_latency_period             = var.proxy_borrow_latency_period
+  borrow_latency_evaluations        = var.proxy_borrow_latency_evaluations
+
+  tags = local.common_tags
+}
+
+module "pgbouncer" {
+  source = "./modules/pgbouncer"
+  count  = var.database_proxy_mode == "pgbouncer" ? 1 : 0
+
+  name_prefix = local.name_prefix
+
+  vpc_id = module.network.vpc_id
+  subnet_ids = module.network.app_subnet_ids
+
+  app_security_group_id = module.network.app_security_group_id
+  db_security_group_id = module.network.db_security_group_id
+
+  db_host = module.database.primary_endpoint
+  db_port = 5432
+  db_name = var.db_name
+  db_username = var.db_username
+
+  db_secret_arn = module.database.secret_arn
+  db_secret_kms_key_arn = module.database.kms_key_arn
+
+  instance_type = var.pgbouncer_instance_type
+  min_size      = var.pgbouncer_min_size
+  desired_capacity = var.pgbouncer_desired_capacity
+  max_size      = var.pgbouncer_max_size
+
+  pgbouncer_port = var.pgbouncer_port
+  pool_mode = var.pgbouncer_pool_mode
+  default_pool_size = var.pgbouncer_default_pool_size
+  max_client_conn = var.pgbouncer_max_client_conn
+  max_db_connections = var.pgbouncer_max_db_connections
+  server_idle_timeout = var.pgbouncer_server_idle_timeout
+  query_wait_timeout = var.pgbouncer_query_wait_timeout
+  health_check_interval = var.pgbouncer_health_check_interval
+  health_check_threshold = var.pgbouncer_health_check_threshold
+
+  tags = local.common_tags
+}
+
+
 
 
 
