@@ -27,3 +27,36 @@ Asynchronous replicas prioritize write availability and can lag.
 Synchronous replication can improve durability guarantees but may increase write latency or reduce write availability when synchronous standbys are unavailable.
 
 Log-based change-data capture is useful for distributing changes to other systems, but does not automatically make ordinary RDS read replicas current.
+
+
+.
+├── main.tf               root composition of network + database + proxy modules
+├── local.tf              common tags, naming, required-tag values
+├── variables.tf          required inputs, validations, environment-specific settings
+├── providers.tf          AWS provider configuration
+├── versions.tf           Terraform and provider version constraints
+├── terraform.tfvars      sample production values for eu-west-1
+├── outputs.tf            public outputs for VPC, endpoints, secrets, KMS
+├── README.md             repo notes on replication and platform design
+├── modules/
+│   ├── network/          VPC, subnets, NAT, route tables, SGs
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── variables.tf
+│   │   └── README.md
+│   ├── database/         RDS primary + replicas + KMS + Secrets Manager + monitoring
+│   │   ├── main.tf
+│   │   ├── README.md
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   └── rds-proxy/        RDS Proxy IAM role, proxy, connection pool, alarm
+│       ├── main.tf
+│       ├── outputs.tf
+│       └── variables.tf
+├── policies/
+│   └── required-tags-scp.json   example AWS SCP enforcing required tags
+├── scripts/
+│   └── validate.sh         format/init/validate/test script
+├── tests/
+│   └── tagging.tftest.hcl  Terraform test for mandatory tag keys
+└── .gitignore
