@@ -164,7 +164,7 @@ variable "db_instance_class" {
   type        = string
 
 ==========================================
-proxy
+Rds-proxy-variable
 ========================================
 variable "proxy_enabled" {
   description = "Whether to create the RDS Proxy."
@@ -343,4 +343,157 @@ variable "maintenance_window" {
   description = "Preferred UTC maintenance window."
   type        = string
   default     = "sun:03:00-sun:04:00"
+
+===============================
+pgbouncer-variable
+=============================
+variable "database_proxy_mode" {
+  description = "Choose the database proxy mode: rds-proxy, pgbouncer, or none."
+  type        = string
+  default     = "rds-proxy"
+
+  validation {
+    condition = contains(["rds-proxy", "pgbouncer", "none"], var.database_proxy_mode)
+    error_message = "database_proxy_mode must be one of: rds-proxy, pgbouncer, none."
+  }
+}
+
+variable "pgbouncer_instance_type" {
+  description = "EC2 instance type for PgBouncer nodes."
+  type        = string
+  default     = "t3.small"
+}
+
+variable "pgbouncer_min_size" {
+  description = "Minimum number of PgBouncer nodes."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.pgbouncer_min_size >= 1
+    error_message = "pgbouncer_min_size must be at least 1."
+  }
+}
+
+variable "pgbouncer_desired_capacity" {
+  description = "Desired number of PgBouncer nodes."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.pgbouncer_desired_capacity >= 1
+    error_message = "pgbouncer_desired_capacity must be at least 1."
+  }
+}
+
+variable "pgbouncer_max_size" {
+  description = "Maximum number of PgBouncer nodes."
+  type        = number
+  default     = 4
+
+  validation {
+    condition     = var.pgbouncer_max_size >= var.pgbouncer_min_size
+    error_message = "pgbouncer_max_size must be greater than or equal to pgbouncer_min_size."
+  }
+}
+
+variable "pgbouncer_port" {
+  description = "Port used by PgBouncer."
+  type        = number
+  default     = 6432
+
+  validation {
+    condition     = var.pgbouncer_port >= 1 && var.pgbouncer_port <= 65535
+    error_message = "pgbouncer_port must be a valid TCP port."
+  }
+}
+
+variable "pgbouncer_pool_mode" {
+  description = "PgBouncer pool mode."
+  type        = string
+  default     = "transaction"
+
+  validation {
+    condition = contains(["session", "transaction", "statement"], var.pgbouncer_pool_mode)
+    error_message = "pgbouncer_pool_mode must be one of: session, transaction, statement."
+  }
+}
+
+variable "pgbouncer_default_pool_size" {
+  description = "Default pool size per database."
+  type        = number
+  default     = 50
+
+  validation {
+    condition     = var.pgbouncer_default_pool_size >= 1
+    error_message = "pgbouncer_default_pool_size must be at least 1."
+  }
+}
+
+variable "pgbouncer_max_client_conn" {
+  description = "Maximum client connections accepted per PgBouncer node."
+  type        = number
+  default     = 5000
+
+  validation {
+    condition     = var.pgbouncer_max_client_conn >= 1
+    error_message = "pgbouncer_max_client_conn must be at least 1."
+  }
+}
+
+variable "pgbouncer_max_db_connections" {
+  description = "Maximum database connections per PgBouncer node."
+  type        = number
+  default     = 200
+
+  validation {
+    condition     = var.pgbouncer_max_db_connections >= 1
+    error_message = "pgbouncer_max_db_connections must be at least 1."
+  }
+}
+
+variable "pgbouncer_server_idle_timeout" {
+  description = "Idle timeout to server connections in seconds."
+  type        = number
+  default     = 60
+
+  validation {
+    condition     = var.pgbouncer_server_idle_timeout >= 1
+    error_message = "pgbouncer_server_idle_timeout must be at least 1."
+  }
+}
+
+variable "pgbouncer_query_wait_timeout" {
+  description = "Query wait timeout in seconds."
+  type        = number
+  default     = 120
+
+  validation {
+    condition     = var.pgbouncer_query_wait_timeout >= 1
+    error_message = "pgbouncer_query_wait_timeout must be at least 1."
+  }
+}
+
+variable "pgbouncer_health_check_interval" {
+  description = "NLB target group health check interval in seconds."
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.pgbouncer_health_check_interval >= 5
+    error_message = "pgbouncer_health_check_interval must be at least 5."
+  }
+}
+
+variable "pgbouncer_health_check_threshold" {
+  description = "Healthy threshold for PgBouncer target group."
+  type        = number
+  default     = 3
+
+  validation {
+    condition     = var.pgbouncer_health_check_threshold >= 2
+    error_message = "pgbouncer_health_check_threshold must be at least 2."
+  }
+}
+
 }
