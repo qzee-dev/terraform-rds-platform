@@ -1,7 +1,3 @@
-Here’s a cleaned-up, professional version you can copy directly into your `modules/pgbouncer/README.md` file.
-
-Writing
-
 # PgBouncer Module
 
 This Terraform module deploys **PgBouncer on Amazon EC2 behind an internal Network Load Balancer (NLB)** to provide connection pooling for production PostgreSQL workloads.
